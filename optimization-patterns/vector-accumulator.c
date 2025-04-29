@@ -74,6 +74,30 @@ void combine4(vec_ptr v, data_t *dest)
     *dest = acc;
 }
 
+// Combine elements: unroll loop by 2, 2-way parallelism
+//     makes use of pipelining capability of the functional units in the underlying Execution Unit (EU)
+void combine5(vec_ptr v, data_t *dest)
+{
+    long int i;
+    long int length = vec_length(v);
+    long int limit = length-1;
+    data_t *data = get_vec_start(v);
+    data_t acc0 = IDENT;
+    data_t acc1 = IDENT;
+
+    // Combine 2 elements at a time
+    for (i = 0; i < limit; i+=2) {
+        acc0 = acc0 OP data[i];
+        acc1 = acc1 OP data[i+1];
+    }
+
+    // Finish any remaining elements
+    for (; i < length; i++) {
+        acc0 = acc0 OP data[i];
+    }
+    *dest = acc0 OP acc1;
+}
+
 // Print vector to terminal
 void print_vector(vec_ptr v) {
     long int length = v->len;
@@ -114,6 +138,12 @@ int main()
     printf("combine4():\n");
     print_vector(v);
     combine4(v, dest);
+    printf("Accumulated value: %d\n", *dest);
+
+    // Test combine5()
+    printf("combine5():\n");
+    print_vector(v);
+    combine5(v, dest);
     printf("Accumulated value: %d\n", *dest);
 
     free(v->data);

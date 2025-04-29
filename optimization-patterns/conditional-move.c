@@ -26,6 +26,7 @@ void merge(int src1[], int src2[], int dest[], int n)
     int i2 = 0;
     int id = 0;
     while (i1 < n && i2 < n)
+        // Ternary used to invoke a conditional move in assembly to avoid misprediction branching
         dest[id++] = src1[i1] < src2[i2] ? src1[i1++] : src2[i2++];
     while (i1 < n)
         dest[id++] = src1[i1++];
